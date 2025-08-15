@@ -1,22 +1,18 @@
 import express from 'express';
+import { getUserNotifications, markNotificationRead } from '../../services/notifications.js';
 const router = express.Router();
 
 // GET /notifications
 router.get('/', async (req, res) => {
-  const userId = req.header('X-User-Id');
-  if (!userId) return res.status(400).json({ error: 'X-User-Id header required' });
-
-  // TODO: fetch notifications for user
-  res.json({ items: [], unread: 0 });
+  const userId = req.userId;
+  const data = await getUserNotifications(userId);
+  res.json(data);
 });
 
 // PATCH /notifications/:id/read
 router.patch('/:id/read', async (req, res) => {
-  const userId = req.header('X-User-Id');
-  if (!userId) return res.status(400).json({ error: 'X-User-Id header required' });
-
   const { id } = req.params;
-  // TODO: mark as read
+  await markNotificationRead(req.userId, id);
   res.json({ ok: true, id });
 });
 

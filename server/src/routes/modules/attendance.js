@@ -1,16 +1,20 @@
 import express from 'express';
+import { markAttendance } from '../../services/attendance.js';
 const router = express.Router();
 
 // POST /attendance { lectureId, status? }
 router.post('/', async (req, res) => {
-  const userId = req.header('X-User-Id');
-  if (!userId) return res.status(400).json({ error: 'X-User-Id header required' });
+  const userId = req.userId;
 
   const { lectureId, status } = req.body;
   if (!lectureId) return res.status(400).json({ error: 'lectureId required' });
 
-  // TODO: mark attendance and update progress
-  res.json({ ok: true });
+  try {
+    const result = await markAttendance({ userId, lectureId, status });
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
 export default router;
